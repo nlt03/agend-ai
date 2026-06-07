@@ -11,6 +11,20 @@ Items deliberately deferred. Build these in later rounds once the Figma-driven U
 - Password strength meter and confirm-password field
 - Account settings / profile page
 
+## AI assistant
+- Real NLP rescheduling: free-text "move my 3pm to Thursday" parsing (currently only canned intents)
+- Arbitrary add/edit via natural language ("add dentist at 9am Monday for 1 hour")
+- Multi-turn conversation with context memory across messages
+- Networked model option (Claude API flag: VITE_ASSISTANT=api)
+- WebLLM suggestion set — currently SUGGESTIONS only maps to MockAssistant intents
+
+## Data / sync
+- Notes and tasks entities (store is extensible; UI is parked in 2f)
+- Cloud sync / backend data persistence
+- Multi-device support
+- Import from Google Calendar / CalDAV / iCal
+- Recurring event support
+
 ## UI / UX
 - Figma-driven visual design pass (full screens, tokens, responsive polish)
 - Week/month calendar views

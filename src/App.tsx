@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, Link } from 'react-router-dom'
 import { AssistantProvider, useAssistant } from './contexts/AssistantContext'
 import { AppLoader } from './components/AppLoader'
+import { useIdleReset } from './hooks/useIdleReset'
 import Splash from './routes/Splash'
 import Onboarding from './routes/Onboarding'
 import Signup from './routes/Signup'
@@ -15,6 +16,14 @@ function Shell() {
   const { assistant, loadingMessage } = useAssistant()
   const [phase, setPhase] = useState<Phase>('splash')
   const [splashTimerDone, setSplashTimerDone] = useState(false)
+
+  // Idle reset: when a booth visitor walks away past IDLE_MS, the store
+  // is reseeded (inside the hook) and the app returns to the splash screen.
+  const handleIdleReset = useCallback(() => {
+    setPhase('splash')
+    setSplashTimerDone(false)
+  }, [])
+  useIdleReset(handleIdleReset)
 
   // Advance from splash when BOTH the 1.5s timer fires AND the assistant is ready.
   // For MockAssistant this is immediate; for WebLLM the splash naturally waits longer.
