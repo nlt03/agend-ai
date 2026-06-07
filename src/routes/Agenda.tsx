@@ -1,14 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
-import { useAssistant } from '../contexts/AssistantContext'
+import { useNavigate } from 'react-router-dom'
+import { Bell, UserRound, Sparkles } from 'lucide-react'
 import { useAgendaStore, CATEGORY_COLORS } from '../store/agendaStore'
+import type { AgendaEvent } from '../store/agendaStore'
 import { SUGGESTIONS } from '../ai'
+import { BottomNav } from '../components/BottomNav'
 
-const TODAY_LABEL = new Date().toLocaleDateString('en-US', {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-})
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString('en-US', {
@@ -18,144 +17,192 @@ function fmtTime(iso: string) {
   })
 }
 
-export default function Agenda() {
-  const { assistant } = useAssistant()
+function greeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
+}
 
-  // Live events from store — re-renders when any event changes.
+const DATE_LABEL = new Date().toLocaleDateString('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+})
+
+// ---------------------------------------------------------------------------
+// EventCard — tint bg, full-saturation dot, dark text (2a AA pattern)
+// ---------------------------------------------------------------------------
+
+function EventCard({ event }: { event: AgendaEvent }) {
+  const c = CATEGORY_COLORS[event.category]
+  return (
+    <div className={`${c.card} rounded-2xl px-4 py-3 flex items-center gap-3`}>
+      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${c.dot}`} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-sm font-medium text-text truncate">{event.title}</span>
+          <span className="text-xs text-text-muted shrink-0">{event.durationMin}m</span>
+        </div>
+        <span className="text-xs text-text-muted">{fmtTime(event.start)}</span>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Day group label for Coming Up
+// ---------------------------------------------------------------------------
+
+function dayLabel(iso: string): string {
+  const d = new Date(iso)
+  const now = new Date()
+
+  const diffDays = Math.round(
+    (new Date(d.toDateString()).getTime() - new Date(now.toDateString()).getTime()) /
+      86_400_000,
+  )
+
+  if (diffDays === 1) return 'Tomorrow'
+  if (diffDays <= 6) return d.toLocaleDateString('en-US', { weekday: 'long' })
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+}
+
+// ---------------------------------------------------------------------------
+// Screen
+// ---------------------------------------------------------------------------
+
+export default function Agenda() {
+  const navigate = useNavigate()
   const events = useAgendaStore((s) => s.events)
-  const today = new Date()
-  const todayStr = today.toDateString()
+
+  const todayStr = new Date().toDateString()
+
   const todayEvents = events
     .filter((e) => new Date(e.start).toDateString() === todayStr)
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
 
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([])
-  const [input, setInput] = useState('')
-  const [streaming, setStreaming] = useState(false)
-  const endRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  async function handleSend(text?: string) {
-    const prompt = (text ?? input).trim()
-    if (!prompt || streaming || !assistant) return
-    setInput('')
-    setMessages((m) => [...m, { role: 'user', text: prompt }])
-    setStreaming(true)
-
-    let accumulated = ''
-    setMessages((m) => [...m, { role: 'assistant', text: '' }])
-
-    await assistant.generate(prompt, {
-      onToken: (token) => {
-        accumulated += token
-        setMessages((m) => {
-          const next = [...m]
-          next[next.length - 1] = { role: 'assistant', text: accumulated }
-          return next
-        })
-      },
+  // Upcoming = events from tomorrow onward, limited to next 10 days, max 8 items
+  const upcomingRaw = events
+    .filter((e) => {
+      const d = new Date(e.start)
+      return (
+        d.toDateString() !== todayStr &&
+        d.getTime() > Date.now() &&
+        d.getTime() < Date.now() + 10 * 86_400_000
+      )
     })
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    .slice(0, 8)
 
-    setStreaming(false)
+  // Group upcoming by day
+  const dayGroups: { label: string; events: AgendaEvent[] }[] = []
+  for (const ev of upcomingRaw) {
+    const label = dayLabel(ev.start)
+    const last = dayGroups[dayGroups.length - 1]
+    if (last && last.label === label) last.events.push(ev)
+    else dayGroups.push({ label, events: [ev] })
+  }
+
+  function openChat(prompt?: string) {
+    navigate('/chat', prompt ? { state: { initialPrompt: prompt } } : undefined)
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-      {/* Agenda panel */}
-      <div>
-        <h2 className="text-lg font-medium mb-1">{TODAY_LABEL}</h2>
-        <p className="text-sm text-text-muted mb-3">
-          {todayEvents.length} event{todayEvents.length !== 1 ? 's' : ''} today
-        </p>
+    <div className="fixed inset-0 bg-surface flex justify-center">
+      <div className="w-full max-w-sm flex flex-col h-full overflow-hidden">
 
-        {todayEvents.length === 0 ? (
-          <p className="text-sm text-text-muted text-center py-10">Nothing scheduled today</p>
-        ) : (
-          <div className="space-y-2">
-            {todayEvents.map((ev) => {
-              const c = CATEGORY_COLORS[ev.category]
-              return (
-                <div
-                  key={ev.id}
-                  className={`border-l-4 rounded-lg px-4 py-3 ${c.card} ${c.border}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${c.dot}`} />
-                      <span className="font-medium text-text">{ev.title}</span>
-                    </div>
-                    <span className="text-xs text-text-muted">{ev.durationMin} min</span>
-                  </div>
-                  <div className="text-sm text-text-muted mt-0.5 ml-4">{fmtTime(ev.start)}</div>
-                </div>
-              )
-            })}
+        {/* Header */}
+        <header className="bg-white px-5 pt-safe pb-4 shrink-0">
+          <div className="flex items-start justify-between mt-3">
+            <div>
+              <p className="text-xs text-text-muted font-medium uppercase tracking-wider">{DATE_LABEL}</p>
+              <h1 className="text-2xl font-semibold text-text mt-0.5">{greeting()}</h1>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <button
+                aria-label="Notifications"
+                className="w-9 h-9 rounded-full bg-surface flex items-center justify-center text-text-muted"
+              >
+                <Bell size={18} strokeWidth={1.5} />
+              </button>
+              <button
+                aria-label="Profile"
+                className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white"
+              >
+                <UserRound size={18} strokeWidth={1.5} />
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </header>
 
-      {/* Assistant panel */}
-      <div className="flex flex-col border border-surface rounded-xl bg-white overflow-hidden h-[500px]">
-        <div className="px-4 py-3 border-b border-surface bg-surface shrink-0">
-          <span className="font-medium text-sm text-text">AI Assistant</span>
-          <span className="ml-2 text-xs text-text-muted">(mock)</span>
-        </div>
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto scrollbar-none px-4 py-5 space-y-6">
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {messages.length === 0 && (
-            <div className="mt-4 space-y-2">
-              <p className="text-xs text-text-muted text-center mb-3">Try asking…</p>
+          {/* AI entry */}
+          <div className="space-y-3">
+            <button
+              onClick={() => openChat()}
+              className="w-full bg-white rounded-2xl shadow-sm px-4 py-3.5 flex items-center gap-3 text-left"
+            >
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Sparkles size={18} strokeWidth={1.5} className="text-primary" />
+              </div>
+              <span className="text-sm text-text-muted">How can I help you today?</span>
+            </button>
+
+            {/* Suggestion chips — horizontal scroll */}
+            <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 pb-0.5">
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s}
-                  onClick={() => handleSend(s)}
-                  disabled={streaming}
-                  className="w-full text-left text-sm px-3 py-2 rounded-lg bg-surface text-text-muted hover:bg-primary/10 hover:text-primary transition-colors"
+                  onClick={() => openChat(s)}
+                  className="shrink-0 text-xs bg-white rounded-full px-3.5 py-2 text-text-muted border border-surface hover:border-primary/50 hover:text-primary transition-colors"
                 >
                   {s}
                 </button>
               ))}
             </div>
-          )}
+          </div>
 
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              className={`text-sm rounded-lg px-3 py-2 max-w-[90%] whitespace-pre-wrap ${
-                m.role === 'user'
-                  ? 'bg-primary text-white ml-auto'
-                  : 'bg-surface text-text'
-              }`}
-            >
-              {m.text}
-              {streaming && i === messages.length - 1 && m.role === 'assistant' && (
-                <span className="inline-block w-1.5 h-3.5 bg-text-muted ml-0.5 animate-pulse" />
-              )}
+          {/* Today's Agenda */}
+          <section>
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="font-semibold text-text">Today's Agenda</h2>
+              <span className="text-xs text-text-muted">{todayEvents.length} event{todayEvents.length !== 1 ? 's' : ''}</span>
             </div>
-          ))}
-          <div ref={endRef} />
+            {todayEvents.length === 0 ? (
+              <p className="text-sm text-text-muted text-center py-6 bg-white rounded-2xl">
+                Nothing scheduled for today
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {todayEvents.map((ev) => <EventCard key={ev.id} event={ev} />)}
+              </div>
+            )}
+          </section>
+
+          {/* Coming Up */}
+          {dayGroups.length > 0 && (
+            <section className="pb-4">
+              <h2 className="font-semibold text-text mb-3">Coming Up</h2>
+              <div className="space-y-4">
+                {dayGroups.map((group) => (
+                  <div key={group.label}>
+                    <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2 px-1">
+                      {group.label}
+                    </p>
+                    <div className="space-y-2">
+                      {group.events.map((ev) => <EventCard key={ev.id} event={ev} />)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
-        <div className="border-t border-surface p-3 flex gap-2 shrink-0">
-          <input
-            className="flex-1 text-sm border border-surface rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-soft bg-white text-text placeholder:text-text-muted"
-            placeholder="Ask about your schedule…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            disabled={streaming}
-          />
-          <button
-            onClick={() => handleSend()}
-            disabled={streaming || !input.trim()}
-            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg disabled:opacity-40 hover:bg-primary/90 transition-colors"
-          >
-            Send
-          </button>
-        </div>
+        <BottomNav active="agenda" />
       </div>
     </div>
   )
