@@ -1,0 +1,36 @@
+# Parked items — out of scope for the current prototype round
+
+Items deliberately deferred. Build these in later rounds once the Figma-driven UI is in place and device testing results are known.
+
+## UI / UX
+- Figma-driven visual design pass (full screens, tokens, responsive polish)
+- Week/month calendar views
+- Event detail / edit modals
+- Drag-and-drop rescheduling
+- Mobile-optimised touch targets and gesture handling
+- Dark mode
+
+## Calendar data
+- Real calendar integration (Google Calendar, CalDAV, iCal import)
+- Persistent local storage (IndexedDB) for events
+- Recurring events
+- Reminders / notifications (Web Push or native)
+
+## AI assistant
+- Networked model option (Claude API or similar) behind a VITE_ASSISTANT=api flag
+- Structured output: assistant returns JSON actions (add/move/delete event) the app actually executes
+- Context window with real calendar data injected into the system prompt
+- Conversation memory across sessions
+- Voice input (Web Speech API)
+
+## On-device inference (post-spike decision)
+- If spike passes on Redmi A5: integrate WebLLM into the main assistant flow
+- Model caching strategy (Cache API / OPFS) to avoid re-downloading on reload
+- Progressive load UI (show partial model while downloading)
+- Fallback chain: webllm → mock if GPU absent or OOM
+
+## Infrastructure
+- Custom domain for GitHub Pages
+- Analytics (privacy-respecting, e.g. Plausible)
+- PWA / installable app manifest
+- CI: lint + type-check gate before deploy
