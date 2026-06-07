@@ -10,6 +10,15 @@ const config: Config = {
         // Kanit for the "Agend.AI" wordmark only (splash + signup)
         logo: ['Kanit', 'sans-serif'],
       },
+      animation: {
+        'fade-in': 'fadeIn 0.25s ease-out both',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%':   { opacity: '0', transform: 'translateY(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
       colors: {
         primary: {
           DEFAULT: '#5678FF',
