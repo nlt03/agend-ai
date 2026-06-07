@@ -2,6 +2,15 @@
 
 Items deliberately deferred. Build these in later rounds once the Figma-driven UI is in place and device testing results are known.
 
+## Auth / onboarding
+- Real email/password auth with a backend (hashing, sessions, JWTs)
+- Apple Sign In and Google OAuth (currently simulated — buttons are visual only)
+- "Onboarding seen" flag in localStorage — once the booth demo phase ends, returning users should skip the flow
+- Separate Log In screen (the "Log in" link currently fast-tracks to home)
+- Email verification after sign-up
+- Password strength meter and confirm-password field
+- Account settings / profile page
+
 ## UI / UX
 - Figma-driven visual design pass (full screens, tokens, responsive polish)
 - Week/month calendar views
