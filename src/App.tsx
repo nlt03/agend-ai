@@ -9,7 +9,9 @@ import Signup from './routes/Signup'
 import Agenda from './routes/Agenda'
 import Chat from './routes/Chat'
 import Calendar from './routes/Calendar'
-import { InsightsScreen, NotesScreen } from './routes/Placeholder'
+import Insights from './routes/Insights'
+import Notes from './routes/Notes'
+import NoteDetail from './routes/NoteDetail'
 import Spike from './routes/Spike'
 
 // The entry flow runs in-memory so every launch gets the full first-run experience.
@@ -67,8 +69,9 @@ function Shell() {
       <Route path="/" element={<Agenda />} />
       <Route path="/chat" element={<Chat />} />
       <Route path="/calendar" element={<Calendar />} />
-      <Route path="/insights" element={<InsightsScreen />} />
-      <Route path="/notes" element={<NotesScreen />} />
+      <Route path="/insights" element={<Insights />} />
+      <Route path="/notes" element={<Notes />} />
+      <Route path="/notes/:id" element={<NoteDetail />} />
       <Route path="/spike" element={<Spike />} />
     </Routes>
   )

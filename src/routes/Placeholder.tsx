@@ -22,6 +22,7 @@ function Placeholder({ title, tab }: PlaceholderProps) {
   )
 }
 
-export function CalendarScreen() { return <Placeholder title="Calendar" tab="calendar" /> }
-export function InsightsScreen()  { return <Placeholder title="Insights"  tab="insights" /> }
-export function NotesScreen()     { return <Placeholder title="Notes"     tab="notes" /> }
+// Kept for any future placeholder needs; Insights and Notes now have real screens.
+export function GenericPlaceholder({ title, tab }: PlaceholderProps) {
+  return <Placeholder title={title} tab={tab} />
+}

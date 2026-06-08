@@ -25,6 +25,13 @@ Items deliberately deferred. Build these in later rounds once the Figma-driven U
 - Import from Google Calendar / CalDAV / iCal
 - Recurring event support
 
+## Notes / AI
+- Note AI: "Translate" chip (visual-only in 2f — no language model or API wired)
+- Note AI: "Apply" button to replace note body with the AI result (currently read-only output)
+- Note AI: real NLP transformations via Claude API (2f uses canned string manipulation)
+- Note AI: context-aware suggestions based on note content
+- Note search / filter
+
 ## UI / UX
 - Figma-driven visual design pass (full screens, tokens, responsive polish)
 - Calendar week view (parked from 2e — month view ships instead; week is lower booth value, higher complexity)
