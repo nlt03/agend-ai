@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bell, UserRound, Sparkles } from 'lucide-react'
 import { useAgendaStore, CATEGORY_COLORS } from '../store/agendaStore'
 import type { AgendaEvent } from '../store/agendaStore'
 import { SUGGESTIONS } from '../ai'
 import { BottomNav } from '../components/BottomNav'
+import { ProfileMenu } from '../components/ProfileMenu'
+import { NotificationsPanel } from '../components/NotificationsPanel'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -69,12 +72,19 @@ function dayLabel(iso: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Sheet type — which overlay is open
+// ---------------------------------------------------------------------------
+
+type SheetType = null | 'profile' | 'notifications'
+
+// ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
 
 export default function Agenda() {
   const navigate = useNavigate()
   const events = useAgendaStore((s) => s.events)
+  const [sheet, setSheet] = useState<SheetType>(null)
 
   const todayStr = new Date().toDateString()
 
@@ -110,7 +120,8 @@ export default function Agenda() {
 
   return (
     <div className="fixed inset-0 bg-surface flex justify-center">
-      <div className="w-full max-w-sm flex flex-col h-full overflow-hidden">
+      {/* relative so the profile/notifications sheets can position absolutely inside */}
+      <div className="w-full max-w-sm flex flex-col h-full relative">
 
         {/* Header */}
         <header className="bg-white px-5 pt-safe pb-4 shrink-0">
@@ -119,16 +130,19 @@ export default function Agenda() {
               <p className="text-xs text-text-muted font-medium uppercase tracking-wider">{DATE_LABEL}</p>
               <h1 className="text-2xl font-semibold text-text mt-0.5">{greeting()}</h1>
             </div>
-            <div className="flex items-center gap-2 mt-1">
+            {/* Icon buttons — w-11 h-11 (44px) for WCAG 2.5.5 tap-target compliance */}
+            <div className="flex items-center gap-1 mt-1">
               <button
                 aria-label="Notifications"
-                className="w-9 h-9 rounded-full bg-surface flex items-center justify-center text-text-muted"
+                onClick={() => setSheet('notifications')}
+                className="w-11 h-11 rounded-full bg-surface flex items-center justify-center text-text-muted hover:bg-surface/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 <Bell size={18} strokeWidth={1.5} />
               </button>
               <button
                 aria-label="Profile"
-                className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white"
+                onClick={() => setSheet('profile')}
+                className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
               >
                 <UserRound size={18} strokeWidth={1.5} />
               </button>
@@ -203,6 +217,11 @@ export default function Agenda() {
         </div>
 
         <BottomNav active="agenda" />
+
+        {/* Sheets — positioned absolute within the relative max-w-sm container */}
+        {sheet === 'profile'       && <ProfileMenu         onClose={() => setSheet(null)} />}
+        {sheet === 'notifications' && <NotificationsPanel  onClose={() => setSheet(null)} />}
+
       </div>
     </div>
   )
