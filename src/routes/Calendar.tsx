@@ -66,7 +66,7 @@ function fmtTime(iso: string) {
 function EventCard({ event }: { event: AgendaEvent }) {
   const c = CATEGORY_COLORS[event.category]
   return (
-    <div className={`${c.card} rounded-2xl px-4 py-3 flex items-center gap-3`}>
+    <div className={`${c.card} rounded-2xl px-4 py-3 flex items-center gap-3 shadow-card`}>
       <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${c.dot}`} />
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2">

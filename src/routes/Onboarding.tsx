@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CalendarDays, Sparkles, BarChart3, Crown } from 'lucide-react'
+import { CalendarDays, Sparkles, BarChart3, Crown, ArrowLeft } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Icon } from '../components/Icon'
 
@@ -36,7 +36,7 @@ const SLIDES: Slide[] = [
   {
     icon: Crown,
     iconClass: 'text-white',
-    bgClass: 'bg-label-purple', // full purple — white icon passes AA (4.70:1)
+    bgClass: 'bg-label-purple', // full purple — white icon at large size passes AA (4.70:1)
     title: 'Free to start, powerful to upgrade',
     subtitle: 'Core features always free; premium capacity when needed',
   },
@@ -57,10 +57,26 @@ export default function Onboarding({ onSkip, onDone }: OnboardingProps) {
     else setCurrent((c) => c + 1)
   }
 
+  function back() {
+    if (current > 0) setCurrent((c) => c - 1)
+  }
+
   return (
     <div className="fixed inset-0 bg-white flex flex-col max-w-sm mx-auto">
-      {/* Skip */}
-      <div className="flex justify-end px-5 pt-5 pb-2 shrink-0">
+      {/* Navigation row: back arrow (slide 2+) + skip */}
+      <div className="flex items-center justify-between px-4 pt-5 pb-2 shrink-0">
+        {current > 0 ? (
+          <button
+            onClick={back}
+            aria-label="Previous slide"
+            className="w-11 h-11 rounded-full flex items-center justify-center text-text-muted hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            <ArrowLeft size={20} strokeWidth={1.5} />
+          </button>
+        ) : (
+          /* Spacer so Skip stays on the right */
+          <div className="w-11 h-11" aria-hidden="true" />
+        )}
         <button
           onClick={onSkip}
           className="text-sm text-text-muted hover:text-text transition-colors"
@@ -69,17 +85,17 @@ export default function Onboarding({ onSkip, onDone }: OnboardingProps) {
         </button>
       </div>
 
-      {/* Illustration + text — scrollable on very small screens */}
-      <div key={current} className="flex-1 flex flex-col items-center justify-center px-8 gap-6 animate-fade-in">
+      {/* Illustration + text — slide-in animation on key change */}
+      <div key={current} className="flex-1 flex flex-col items-center justify-center px-8 gap-6 animate-slide-in">
         <div className={`rounded-3xl p-10 flex items-center justify-center ${slide.bgClass}`}>
           <Icon icon={slide.icon} size={72} className={slide.iconClass} />
         </div>
 
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-semibold text-text leading-tight">
+          <h2 className="text-h2 font-semibold text-text leading-tight">
             {slide.title}
           </h2>
-          <p className="text-base text-text-muted leading-relaxed">
+          <p className="text-body text-text-muted leading-relaxed">
             {slide.subtitle}
           </p>
         </div>
@@ -87,7 +103,7 @@ export default function Onboarding({ onSkip, onDone }: OnboardingProps) {
 
       {/* Dots + CTA */}
       <div className="shrink-0 px-6 pb-10 flex flex-col items-center gap-6">
-        {/* Progress dots */}
+        {/* Progress dots — spec: active ~32px wide / inactive 8px at lavender 40% */}
         <div className="flex gap-2" role="tablist" aria-label="Slide progress">
           {SLIDES.map((_, i) => (
             <button
@@ -98,8 +114,8 @@ export default function Onboarding({ onSkip, onDone }: OnboardingProps) {
               onClick={() => setCurrent(i)}
               className={`rounded-full transition-all duration-300 ${
                 i === current
-                  ? 'w-6 h-2 bg-primary'
-                  : 'w-2 h-2 bg-primary/25'
+                  ? 'w-8 h-2 bg-primary'
+                  : 'w-2 h-2 bg-label-purple/40'
               }`}
             />
           ))}
@@ -107,7 +123,7 @@ export default function Onboarding({ onSkip, onDone }: OnboardingProps) {
 
         <button
           onClick={next}
-          className="w-full h-14 bg-primary text-white font-semibold text-base rounded-2xl hover:bg-primary/90 transition-colors active:scale-[0.98]"
+          className="w-full h-14 bg-primary text-white font-semibold text-body rounded-btn hover:bg-primary/90 transition-colors active:scale-[0.98]"
         >
           {isLast ? 'Get Started' : 'Next'}
         </button>

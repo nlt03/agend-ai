@@ -9,7 +9,8 @@ interface SplashProps {
 
 export default function Splash({ onDone, loading = false }: SplashProps) {
   useEffect(() => {
-    const t = setTimeout(onDone, 1500)
+    // Spec: 2.8s duration (was 1.5s). Tap still advances immediately.
+    const t = setTimeout(onDone, 2800)
     return () => clearTimeout(t)
   }, [onDone])
 
@@ -19,18 +20,19 @@ export default function Splash({ onDone, loading = false }: SplashProps) {
       onClick={onDone}
       role="presentation"
     >
-      {/* brightness-0 invert turns any placeholder into a white silhouette on the blue bg.
-          Replace with a real white-logo PNG and remove the filter classes. */}
-      <img
-        src={logoBlue}
-        alt=""
-        aria-hidden="true"
-        className="w-24 h-24 object-contain brightness-0 invert"
-        draggable={false}
-      />
-      <h1 className="font-logo text-4xl font-semibold text-white tracking-tight">
-        Agend.AI
-      </h1>
+      {/* Spec pulse: opacity 0.85→1→0.85, scale 1.0→1.06→1.0, 1.8s easeInOut infinite */}
+      <div className="flex flex-col items-center gap-5 animate-splash-pulse">
+        <img
+          src={logoBlue}
+          alt=""
+          aria-hidden="true"
+          className="w-24 h-24 object-contain brightness-0 invert"
+          draggable={false}
+        />
+        <h1 className="font-logo text-4xl font-semibold text-white tracking-tight">
+          Agend.AI
+        </h1>
+      </div>
       {loading && (
         <span className="absolute bottom-10 text-white/50 text-xs tracking-widest uppercase">
           Preparing…

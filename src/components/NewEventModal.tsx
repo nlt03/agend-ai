@@ -9,8 +9,7 @@ interface Props {
 }
 
 // Category chips — all use tint bg + dark text to satisfy 2a AA rules.
-// Full-saturation fills (#56CBF9, #FF729F, etc.) on small text fail WCAG AA,
-// so selected state = tint bg + colored border + text-text (dark).
+// personal/purple: tint-only — never dark text on full-saturation fill at small size.
 const CATEGORIES: {
   id: EventCategory
   label: string
@@ -18,11 +17,11 @@ const CATEGORIES: {
   selectedBg: string
   selectedBorder: string
 }[] = [
-  { id: 'work',     label: 'Work',     dot: 'bg-label-purple', selectedBg: 'bg-label-purple/15', selectedBorder: 'border-label-purple/60' },
-  { id: 'personal', label: 'Personal', dot: 'bg-label-pink',   selectedBg: 'bg-label-pink/15',   selectedBorder: 'border-label-pink/60' },
-  { id: 'health',   label: 'Health',   dot: 'bg-label-green',  selectedBg: 'bg-label-green/20',  selectedBorder: 'border-label-green/60' },
-  { id: 'study',    label: 'Study',    dot: 'bg-label-cyan',   selectedBg: 'bg-label-cyan/20',   selectedBorder: 'border-label-cyan/60' },
-  { id: 'social',   label: 'Social',   dot: 'bg-label-orange', selectedBg: 'bg-label-orange/15', selectedBorder: 'border-label-orange/60' },
+  { id: 'work',     label: 'Work',     dot: 'bg-label-cyan',    selectedBg: 'bg-label-cyan/20',    selectedBorder: 'border-label-cyan/60' },
+  { id: 'school',   label: 'School',   dot: 'bg-label-pink',    selectedBg: 'bg-label-pink/15',    selectedBorder: 'border-label-pink/60' },
+  { id: 'family',   label: 'Family',   dot: 'bg-label-orange',  selectedBg: 'bg-label-orange/15',  selectedBorder: 'border-label-orange/60' },
+  { id: 'personal', label: 'Personal', dot: 'bg-label-purple',  selectedBg: 'bg-label-purple/15',  selectedBorder: 'border-label-purple/60' },
+  { id: 'custom',   label: 'Custom',   dot: 'bg-label-green',   selectedBg: 'bg-label-green/20',   selectedBorder: 'border-label-green/60' },
 ]
 
 const DURATION_OPTIONS = [15, 30, 45, 60, 90, 120]
@@ -80,8 +79,8 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/40 z-40" onClick={onClose} />
 
-      {/* Bottom sheet */}
-      <div className="absolute inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl max-h-[92%] flex flex-col">
+      {/* Bottom sheet — spec modal radius 28px */}
+      <div className="absolute inset-x-0 bottom-0 z-50 bg-white rounded-t-modal max-h-[92%] flex flex-col">
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
           <div className="w-10 h-1 rounded-full bg-surface" />
@@ -89,11 +88,11 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
 
         {/* Sheet header */}
         <div className="flex items-center justify-between px-5 pb-3 shrink-0">
-          <h2 className="text-lg font-semibold text-text">New Event</h2>
+          <h2 className="text-h3 text-text">New Event</h2>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface transition-colors"
+            className="w-11 h-11 rounded-full flex items-center justify-center text-text-muted hover:bg-surface transition-colors"
           >
             <X size={18} strokeWidth={1.5} />
           </button>
@@ -104,11 +103,11 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
 
           {/* Title */}
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1.5 uppercase tracking-wider">
+            <label className="block text-caption font-medium text-text-muted mb-1.5 uppercase tracking-wider">
               Title
             </label>
             <input
-              className="w-full bg-surface rounded-xl px-4 py-3 text-sm text-text placeholder:text-text-muted outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full bg-surface rounded-input px-4 py-3 text-body text-text placeholder:text-text-muted outline-none focus:ring-2 focus:ring-primary/30"
               placeholder="Event title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -118,7 +117,7 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
 
           {/* Category */}
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-2 uppercase tracking-wider">
+            <label className="block text-caption font-medium text-text-muted mb-2 uppercase tracking-wider">
               Category
             </label>
             <div className="flex flex-wrap gap-2">
@@ -128,7 +127,7 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
                   <button
                     key={cat.id}
                     onClick={() => setCategory(cat.id)}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium border-2 transition-colors ${
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-body font-medium border-2 transition-colors ${
                       sel
                         ? `${cat.selectedBg} ${cat.selectedBorder} text-text`
                         : 'bg-surface border-transparent text-text-muted hover:border-text-muted/20'
@@ -145,11 +144,11 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
           {/* Date + all-day toggle */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-medium text-text-muted uppercase tracking-wider">
+              <label className="text-caption font-medium text-text-muted uppercase tracking-wider">
                 Date
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <span className="text-xs text-text-muted">All day</span>
+                <span className="text-caption text-text-muted">All day</span>
                 <button
                   role="switch"
                   aria-checked={allDay}
@@ -168,7 +167,7 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
             </div>
             <input
               type="date"
-              className="w-full bg-surface rounded-xl px-4 py-3 text-sm text-text outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full bg-surface rounded-input px-4 py-3 text-body text-text outline-none focus:ring-2 focus:ring-primary/30"
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />
@@ -178,22 +177,22 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
           {!allDay && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1.5 uppercase tracking-wider">
+                <label className="block text-caption font-medium text-text-muted mb-1.5 uppercase tracking-wider">
                   Start time
                 </label>
                 <input
                   type="time"
-                  className="w-full bg-surface rounded-xl px-4 py-3 text-sm text-text outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full bg-surface rounded-input px-4 py-3 text-body text-text outline-none focus:ring-2 focus:ring-primary/30"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1.5 uppercase tracking-wider">
+                <label className="block text-caption font-medium text-text-muted mb-1.5 uppercase tracking-wider">
                   Duration
                 </label>
                 <select
-                  className="w-full bg-surface rounded-xl px-4 py-3 text-sm text-text outline-none focus:ring-2 focus:ring-primary/30 appearance-none"
+                  className="w-full bg-surface rounded-input px-4 py-3 text-body text-text outline-none focus:ring-2 focus:ring-primary/30 appearance-none"
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
                 >
@@ -209,11 +208,11 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
 
           {/* Notes (persisted) */}
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1.5 uppercase tracking-wider">
+            <label className="block text-caption font-medium text-text-muted mb-1.5 uppercase tracking-wider">
               Notes
             </label>
             <textarea
-              className="w-full bg-surface rounded-xl px-4 py-3 text-sm text-text placeholder:text-text-muted outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+              className="w-full bg-surface rounded-input px-4 py-3 text-body text-text placeholder:text-text-muted outline-none focus:ring-2 focus:ring-primary/30 resize-none"
               placeholder="Add notes…"
               rows={3}
               value={notes}
@@ -223,20 +222,20 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
 
           {/* Location — visual only */}
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1.5 uppercase tracking-wider">
+            <label className="block text-caption font-medium text-text-muted mb-1.5 uppercase tracking-wider">
               Location
             </label>
-            <div className="w-full bg-surface rounded-xl px-4 py-3 text-sm text-text-muted opacity-50 flex items-center gap-2">
+            <div className="w-full bg-surface rounded-input px-4 py-3 text-body text-text-muted opacity-50 flex items-center gap-2">
               <span className="flex-1">Add location (coming soon)</span>
             </div>
           </div>
 
           {/* Reminder — visual only */}
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1.5 uppercase tracking-wider">
+            <label className="block text-caption font-medium text-text-muted mb-1.5 uppercase tracking-wider">
               Reminder
             </label>
-            <div className="w-full bg-surface rounded-xl px-4 py-3 text-sm text-text-muted opacity-50 flex items-center justify-between">
+            <div className="w-full bg-surface rounded-input px-4 py-3 text-body text-text-muted opacity-50 flex items-center justify-between">
               <span>None</span>
               <ChevronRight size={16} strokeWidth={1.5} />
             </div>
@@ -248,7 +247,7 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
         <div className="px-5 py-4 pb-safe shrink-0 border-t border-surface">
           <button
             onClick={handleConfirm}
-            className="w-full bg-primary text-white font-semibold rounded-2xl py-3.5 text-sm active:opacity-90 transition-opacity"
+            className="w-full bg-primary text-white font-semibold rounded-btn py-3.5 text-body active:opacity-90 transition-opacity"
           >
             Add Event
           </button>

@@ -33,7 +33,7 @@ export function ProfileMenu({ onClose }: Props) {
       <div className="absolute inset-0 bg-black/40 z-40" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="absolute inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl max-h-[85%] flex flex-col overflow-hidden">
+      <div className="absolute inset-x-0 bottom-0 z-50 bg-white rounded-t-modal max-h-[85%] flex flex-col overflow-hidden">
 
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">

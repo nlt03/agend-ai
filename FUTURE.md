@@ -41,6 +41,9 @@ Items deliberately deferred. Build these in later rounds once the Figma-driven U
 - Note AI: context-aware suggestions based on note content
 - Note search / filter
 
+## Design tokens / theming
+- CSS custom properties (`--color-primary`, `--color-surface`, etc.) as a pre-positioning step for dark mode. Currently Tailwind tokens are plain values in `tailwind.config.ts`; converting them to CSS variables requires the `rgb(var(--color-x) / <alpha>)` pattern so Tailwind opacity modifiers keep working. Non-trivial but the right path before any dark-mode round (2j).
+
 ## UI / UX
 - Figma-driven visual design pass (full screens, tokens, responsive polish)
 - Calendar week view (parked from 2e — month view ships instead; week is lower booth value, higher complexity)

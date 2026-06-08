@@ -5,7 +5,9 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 // Types
 // ---------------------------------------------------------------------------
 
-export type EventCategory = 'work' | 'personal' | 'health' | 'study' | 'social'
+// v2 taxonomy (2h): work/school/family/personal/custom
+// Replaces v1's work/personal/health/study/social.
+export type EventCategory = 'work' | 'school' | 'family' | 'personal' | 'custom'
 
 export interface AgendaEvent {
   id: string
@@ -25,18 +27,21 @@ export interface Note {
 }
 
 // ---------------------------------------------------------------------------
-// Category → Tailwind color tokens (2a AA pattern: tint bg + dark text)
+// Category → Tailwind color tokens
+// Spec (2h): work→cyan, school→pink, family→orange, personal→purple, custom→green
+// AA pattern: tint fill + dark text. personal/purple: tint only — never dark text
+// on the full-saturation fill at small size.
 // ---------------------------------------------------------------------------
 
 export const CATEGORY_COLORS: Record<
   EventCategory,
   { dot: string; card: string; border: string }
 > = {
-  work:     { dot: 'bg-label-purple', card: 'bg-label-purple/10', border: 'border-label-purple/40' },
-  personal: { dot: 'bg-label-pink',   card: 'bg-label-pink/10',   border: 'border-label-pink/40' },
-  health:   { dot: 'bg-label-green',  card: 'bg-label-green/10',  border: 'border-label-green/40' },
-  study:    { dot: 'bg-label-cyan',   card: 'bg-label-cyan/10',   border: 'border-label-cyan/40' },
-  social:   { dot: 'bg-label-orange', card: 'bg-label-orange/10', border: 'border-label-orange/40' },
+  work:     { dot: 'bg-label-cyan',    card: 'bg-label-cyan/10',    border: 'border-label-cyan/40' },
+  school:   { dot: 'bg-label-pink',    card: 'bg-label-pink/10',    border: 'border-label-pink/40' },
+  family:   { dot: 'bg-label-orange',  card: 'bg-label-orange/10',  border: 'border-label-orange/40' },
+  personal: { dot: 'bg-label-purple',  card: 'bg-label-purple/10',  border: 'border-label-purple/40' },
+  custom:   { dot: 'bg-label-green',   card: 'bg-label-green/10',   border: 'border-label-green/40' },
 }
 
 // ---------------------------------------------------------------------------
@@ -62,21 +67,21 @@ function isoAt(dayOffset: number, hour: number, minute: number): string {
   return d.toISOString()
 }
 
-/** Generate seed events relative to today (never hardcoded dates). */
+/** Generate seed events — all five 2h categories appear at least once. */
 export function generateSeed(): AgendaEvent[] {
   return [
     // Today
     { id: uid(), title: 'Team standup',            start: isoAt(0, 9,  0),  durationMin: 30,  category: 'work'     },
-    { id: uid(), title: 'Lunch with design team',  start: isoAt(0, 12, 30), durationMin: 60,  category: 'social'   },
+    { id: uid(), title: 'Family dinner',           start: isoAt(0, 18, 30), durationMin: 90,  category: 'family'   },
     { id: uid(), title: 'Focus block — deep work', start: isoAt(0, 16, 30), durationMin: 90,  category: 'work'     },
     // +1 day
     { id: uid(), title: 'Morning run',             start: isoAt(1, 7,  0),  durationMin: 45,  category: 'personal' },
     // +2 days
-    { id: uid(), title: 'Dentist appointment',     start: isoAt(2, 10, 0),  durationMin: 60,  category: 'health'   },
+    { id: uid(), title: 'Study session — Physics', start: isoAt(2, 10, 0),  durationMin: 60,  category: 'school'   },
     // +4 days
-    { id: uid(), title: 'Project deadline',        start: isoAt(4, 17, 0),  durationMin: 60,  category: 'study'    },
+    { id: uid(), title: 'Science fair deadline',   start: isoAt(4, 17, 0),  durationMin: 60,  category: 'school'   },
     // +7 days
-    { id: uid(), title: 'Study group',             start: isoAt(7, 15, 0),  durationMin: 90,  category: 'study'    },
+    { id: uid(), title: 'Book club',               start: isoAt(7, 15, 0),  durationMin: 90,  category: 'custom'   },
     // +9 days
     { id: uid(), title: 'Quarterly review',        start: isoAt(9, 11, 0),  durationMin: 60,  category: 'work'     },
   ]
@@ -93,8 +98,8 @@ export function generateNotesSeed(): Note[] {
     },
     {
       id: uid(),
-      title: 'Study Guide — Biology Exam',
-      body: 'Chapter 7: Cell Division\n- Mitosis: 4 phases (prophase, metaphase, anaphase, telophase)\n- Meiosis: produces gametes, 2 rounds of division\n- Key terms: centromere, spindle fibers, cytokinesis\n\nChapter 8: Genetics\n- Mendel\'s laws: segregation + independent assortment\n- Dominant vs recessive alleles\n- Punnett squares for probability',
+      title: 'Study Guide — Physics Exam',
+      body: 'Chapter 5: Forces and Motion\n- Newton\'s 3 laws: inertia, F=ma, action-reaction\n- Key formulas: F=ma, p=mv, KE=½mv²\n- Vector vs scalar quantities\n\nChapter 6: Energy\n- Conservation of energy\n- Work-energy theorem: W = ΔKE\n- Potential vs kinetic energy conversion',
       updatedAt: isoAt(-1, 20, 0),
     },
     {
@@ -196,7 +201,9 @@ export const useAgendaStore = create<AgendaStore>()(
       touchInteraction: () => set({ lastInteraction: Date.now() }),
     }),
     {
-      name: 'agend-ai:v1',
+      // v2: bumped from v1 to force fresh seed after category taxonomy rename.
+      // Old persisted v1 data had categories (health/study/social) that no longer exist.
+      name: 'agend-ai:v2',
       storage: createJSONStorage(() => localStorage),
       // Only persist data; actions/selectors are recreated from the factory above.
       partialize: (s) => ({

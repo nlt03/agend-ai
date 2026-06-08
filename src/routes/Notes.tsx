@@ -50,7 +50,7 @@ export default function Notes() {
       <div className="w-full max-w-sm flex flex-col h-full">
 
         <header className="bg-white px-5 pt-safe pb-4 shrink-0">
-          <h1 className="text-2xl font-semibold text-text mt-3">Notes</h1>
+          <h1 className="text-h1 font-semibold text-text mt-3">Notes</h1>
         </header>
 
         <div className="relative flex-1 overflow-hidden">
@@ -67,7 +67,7 @@ export default function Notes() {
                   <button
                     key={note.id}
                     onClick={() => navigate(`/notes/${note.id}`)}
-                    className="w-full text-left bg-white rounded-2xl px-4 py-4 space-y-1 active:bg-surface transition-colors"
+                    className="w-full text-left bg-white rounded-2xl px-4 py-4 space-y-1 shadow-card active:bg-surface transition-colors"
                   >
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="font-medium text-text truncate">

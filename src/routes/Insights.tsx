@@ -14,16 +14,17 @@ import { BottomNav } from '../components/BottomNav'
 const COLOR_PRIMARY = '#5678FF'
 const COLOR_PRIMARY_SOFT = '#A2B4FC'
 
+// Spec (2h): work→cyan, school→pink, family→orange, personal→purple, custom→green
 const CATEGORY_HEX: Record<EventCategory, string> = {
-  work:     '#726DA8',
-  personal: '#FF729F',
-  health:   '#A7E8BD',
-  study:    '#56CBF9',
-  social:   '#E67F0D',
+  work:     '#56CBF9',
+  school:   '#FF729F',
+  family:   '#E67F0D',
+  personal: '#726DA8',
+  custom:   '#A7E8BD',
 }
 
 const CATEGORY_LABELS: Record<EventCategory, string> = {
-  work: 'Work', personal: 'Personal', health: 'Health', study: 'Study', social: 'Social',
+  work: 'Work', school: 'School', family: 'Family', personal: 'Personal', custom: 'Custom',
 }
 
 // ---------------------------------------------------------------------------
@@ -44,7 +45,7 @@ const MOST_ACTIVE_DAYS = [
 
 function StatCard({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
   return (
-    <div className="bg-white rounded-2xl px-4 py-4 flex flex-col gap-1">
+    <div className="bg-white rounded-2xl px-4 py-4 flex flex-col gap-1 shadow-card">
       <span className="text-2xl font-bold text-text">{value}</span>
       <span className="text-xs font-medium text-text">{label}</span>
       {sub && <span className="text-xs text-text-muted">{sub}</span>}
@@ -106,7 +107,7 @@ export default function Insights() {
       <div className="w-full max-w-sm flex flex-col h-full">
 
         <header className="bg-white px-5 pt-safe pb-4 shrink-0">
-          <h1 className="text-2xl font-semibold text-text mt-3">Your Activity</h1>
+          <h1 className="text-h1 font-semibold text-text mt-3">Your Activity</h1>
           <p className="text-sm text-text-muted mt-0.5">Keep up the great work!</p>
         </header>
 
