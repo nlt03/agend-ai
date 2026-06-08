@@ -2,6 +2,15 @@
 
 Items deliberately deferred. Build these in later rounds once the Figma-driven UI is in place and device testing results are known.
 
+## Profile / Settings (stubbed in 2g)
+- Edit Profile: real name/avatar/email editing
+- Settings: timezone, first day of week, date/time format preferences
+- Privacy: data retention, local-only mode toggle
+- Help & Feedback: in-app support form or link to docs
+- Appearance / Dark mode: menu item disabled in 2g — wire once design tokens support it
+- Notifications: push permission request + real Web Push integration (panel is visual-only in 2g)
+- Real Log Out: session termination once backend auth exists (currently resets to seed)
+
 ## Auth / onboarding
 - Real email/password auth with a backend (hashing, sessions, JWTs)
 - Apple Sign In and Google OAuth (currently simulated — buttons are visual only)
