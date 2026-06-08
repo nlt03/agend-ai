@@ -5,14 +5,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // DM Sans replaces the default sans stack
         sans: ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        // Kanit for the "Agend.AI" wordmark only (splash + signup)
         logo: ['Kanit', 'sans-serif'],
       },
-      // ---------------------------------------------------------------------------
-      // Type scale (spec: H1 28/1.3, H2 22/1.3, H3 18/1.4, body 15/1.5, caption 12)
-      // ---------------------------------------------------------------------------
       fontSize: {
         'h1':      ['28px', { lineHeight: '1.3', fontWeight: '600' }],
         'h2':      ['22px', { lineHeight: '1.3', fontWeight: '600' }],
@@ -20,24 +15,19 @@ const config: Config = {
         'body':    ['15px', { lineHeight: '1.5' }],
         'caption': ['12px', { lineHeight: '1.4' }],
       },
-      // ---------------------------------------------------------------------------
-      // Radii (spec: card 20px, button 14px, input 12px, modal 28px, pill 9999px)
-      // ---------------------------------------------------------------------------
       borderRadius: {
         'card':  '20px',
         'btn':   '14px',
         'input': '12px',
         'modal': '28px',
       },
-      // ---------------------------------------------------------------------------
-      // Shadows (spec: card 0 4px 20px rgba(35,32,44,0.08))
-      // ---------------------------------------------------------------------------
       boxShadow: {
-        card: '0 4px 20px rgba(35,32,44,0.08)',
+        // CSS variable so dark mode can deepen the shadow without JS.
+        card: 'var(--shadow-card)',
       },
       animation: {
-        'fade-in':     'fadeIn 0.25s ease-out both',
-        'slide-in':    'slideIn 0.3s ease-out both',
+        'fade-in':      'fadeIn 0.25s ease-out both',
+        'slide-in':     'slideIn 0.3s ease-out both',
         'splash-pulse': 'splashPulse 1.8s ease-in-out infinite',
       },
       keyframes: {
@@ -49,36 +39,36 @@ const config: Config = {
           '0%':   { opacity: '0', transform: 'translateX(20px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
-        // Spec: opacity 0.85→1→0.85, scale 1.0→1.06→1.0, 1.8s easeInOut
         splashPulse: {
           '0%, 100%': { opacity: '0.85', transform: 'scale(1.0)' },
           '50%':      { opacity: '1',    transform: 'scale(1.06)' },
         },
       },
       colors: {
+        // All semantic colors use rgb(var(--c-x) / <alpha-value>) so Tailwind
+        // opacity modifiers (bg-primary/10, text-text/50, etc.) keep working.
         primary: {
-          DEFAULT: '#5678FF',
-          soft: '#A2B4FC',
+          DEFAULT: 'rgb(var(--c-primary) / <alpha-value>)',
+          soft:    'rgb(var(--c-primary-soft) / <alpha-value>)',
         },
-        surface: '#F1F2F6',
-        // body text and secondary text — WCAG AA safe on white and surface
+        // page / screen background (darkest layer in dark mode)
+        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+        // raised cards, headers, sheets — replaces bg-white on elevated surfaces
+        card:    'rgb(var(--c-card) / <alpha-value>)',
         text: {
-          DEFAULT: '#23202C',
-          muted: '#5A5766',
+          DEFAULT: 'rgb(var(--c-text) / <alpha-value>)',
+          muted:   'rgb(var(--c-text-muted) / <alpha-value>)',
         },
-        // event / category label colors — all take dark text (text.DEFAULT) on tint fills
         label: {
-          cyan:    '#56CBF9',
-          pink:    '#FF729F',
-          orange:  '#E67F0D',
-          // purple: dark text safe on tint fills only (never dark text on full-sat fill at small size)
-          purple:  '#726DA8',
-          green:   '#A7E8BD',
+          cyan:   'rgb(var(--c-label-cyan) / <alpha-value>)',
+          pink:   'rgb(var(--c-label-pink) / <alpha-value>)',
+          orange: 'rgb(var(--c-label-orange) / <alpha-value>)',
+          purple: 'rgb(var(--c-label-purple) / <alpha-value>)',
+          green:  'rgb(var(--c-label-green) / <alpha-value>)',
         },
-        // status colors — success/warning fills always take dark text (white fails AA)
-        error:   '#FF5760',
-        success: '#22D489',
-        warning: '#FFD15A',
+        error:   'rgb(var(--c-error) / <alpha-value>)',
+        success: 'rgb(var(--c-success) / <alpha-value>)',
+        warning: 'rgb(var(--c-warning) / <alpha-value>)',
       },
     },
   },

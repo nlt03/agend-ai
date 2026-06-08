@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { Toaster, toast } from 'sonner'
 import { MotionConfig } from 'framer-motion'
+import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { AssistantProvider, useAssistant } from './contexts/AssistantContext'
 import { AppEventsContext } from './contexts/AppEventsContext'
 import { AppLoader } from './components/AppLoader'
@@ -23,6 +24,7 @@ type Phase = 'splash' | 'onboarding' | 'signup' | 'app'
 
 function Shell() {
   const { assistant, loadingMessage } = useAssistant()
+  const { setTheme } = useTheme()
   const navigate = useNavigate()
   const [phase, setPhase] = useState<Phase>('splash')
   const [splashTimerDone, setSplashTimerDone] = useState(false)
@@ -30,19 +32,21 @@ function Shell() {
   const resetToSeed = useAgendaStore((s) => s.resetToSeed)
 
   const handleIdleReset = useCallback(() => {
+    setTheme('light')
     navigate('/', { replace: true })
     setPhase('splash')
     setSplashTimerDone(false)
-  }, [navigate])
+  }, [navigate, setTheme])
   useIdleReset(handleIdleReset)
 
   const handleLogOut = useCallback(() => {
     resetToSeed()
+    setTheme('light')
     toast.success('Signed out')
     navigate('/', { replace: true })
     setPhase('splash')
     setSplashTimerDone(false)
-  }, [resetToSeed, navigate])
+  }, [resetToSeed, navigate, setTheme])
 
   useEffect(() => {
     if (splashTimerDone && assistant && phase === 'splash') {
@@ -93,11 +97,12 @@ function Shell() {
 export default function App() {
   return (
     <HashRouter>
-      <AssistantProvider>
-        {/* reducedMotion="user" — respects prefers-reduced-motion system setting */}
-        <MotionConfig reducedMotion="user">
-          <Shell />
-          <Toaster
+      <ThemeProvider>
+        <AssistantProvider>
+          {/* reducedMotion="user" — respects prefers-reduced-motion system setting */}
+          <MotionConfig reducedMotion="user">
+            <Shell />
+            <Toaster
             position="bottom-center"
             offset={20}
             toastOptions={{
@@ -113,8 +118,9 @@ export default function App() {
               },
             }}
           />
-        </MotionConfig>
-      </AssistantProvider>
+          </MotionConfig>
+        </AssistantProvider>
+      </ThemeProvider>
     </HashRouter>
   )
 }

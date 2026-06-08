@@ -2,6 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design tokens — CSS custom properties ─────────────────────────────── */
+/* Colors use space-separated RGB channels so Tailwind opacity modifiers      */
+/* (bg-primary/10, text-text/50, etc.) work via rgb(var(--c-x) / alpha).     */
+
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --c-primary:      86 120 255;   /* #5678FF */
+  --c-primary-soft: 162 180 252;  /* #A2B4FC */
+
+  /* Surfaces */
+  --c-surface: 241 242 246;  /* #F1F2F6  — page / screen background    */
+  --c-card:    255 255 255;  /* #FFFFFF  — raised cards, headers, sheets */
+
+  /* Typography */
+  --c-text:       35 32 44;   /* #23202C */
+  --c-text-muted: 90 87 102;  /* #5A5766 */
+
+  /* Event category labels — same in light & dark */
+  --c-label-cyan:   86 203 249;   /* #56CBF9 */
+  --c-label-pink:   255 114 159;  /* #FF729F */
+  --c-label-orange: 230 127 13;   /* #E67F0D */
+  --c-label-purple: 114 109 168;  /* #726DA8 */
+  --c-label-green:  167 232 189;  /* #A7E8BD */
+
+  /* Status */
+  --c-error:   255 87 96;   /* #FF5760 */
+  --c-success: 34 212 137;  /* #22D489 */
+  --c-warning: 255 209 90;  /* #FFD15A */
+
+  /* Shadow — full CSS value, not just channels */
+  --shadow-card: 0 4px 20px rgba(35,32,44,0.08);
+}
+
+/* ─── Dark mode overrides ────────────────────────────────────────────────── */
+/* Applied via data-theme="dark" on <html> (ThemeContext + anti-FOUC script). */
+/* Only surfaces and text change; brand/label/status colors are unchanged.    */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-surface:    26 24 37;    /* #1A1825  — deepest background */
+  --c-card:       45 41 56;    /* #2D2938  — elevated surfaces  */
+  --c-text:       241 242 246; /* #F1F2F6  — primary text        */
+  --c-text-muted: 168 164 181; /* #A8A4B5  — secondary text      */
+
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.35);
+}
+
 /* Safe-area utilities for iOS standalone PWA */
 .pt-safe { padding-top: env(safe-area-inset-top, 16px); }
 .pb-safe { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
