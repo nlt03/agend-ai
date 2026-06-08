@@ -54,9 +54,21 @@ type Intent =
   | 'greeting'
   | 'clear-afternoon'
   | 'add-break'
+  | 'note-summarize'
+  | 'note-rewrite'
+  | 'note-keypoints'
   | 'fallback'
 
+// Note action prefixes used by NoteDetail AI chips
+const NOTE_PREFIX_SUMMARIZE  = '__note_summarize:'
+const NOTE_PREFIX_REWRITE    = '__note_rewrite:'
+const NOTE_PREFIX_KEYPOINTS  = '__note_keypoints:'
+
 function matchIntent(prompt: string): Intent {
+  if (prompt.startsWith(NOTE_PREFIX_SUMMARIZE))  return 'note-summarize'
+  if (prompt.startsWith(NOTE_PREFIX_REWRITE))    return 'note-rewrite'
+  if (prompt.startsWith(NOTE_PREFIX_KEYPOINTS))  return 'note-keypoints'
+
   const p = prompt.toLowerCase()
 
   if (/\b(clear|remove|delete).{0,15}(afternoon|evening|rest of)\b/.test(p)) return 'clear-afternoon'
@@ -68,6 +80,72 @@ function matchIntent(prompt: string): Intent {
   if (/\b(hi\b|hello|hey|help|what can|get started|start)\b/.test(p)) return 'greeting'
 
   return 'fallback'
+}
+
+// ---------------------------------------------------------------------------
+// Note transformation handlers
+// ---------------------------------------------------------------------------
+
+function respondNoteSummarize(body: string): string {
+  const lines = body.split('\n').map((l) => l.trim()).filter(Boolean)
+  const bullets = lines.filter((l) => /^[-•*]|^\d+[).]/.test(l))
+  const topic = lines[0] ?? 'this note'
+
+  if (bullets.length >= 3) {
+    return (
+      `Summary: ${topic}\n\n` +
+      `This note contains ${bullets.length} specific items across ${lines.length} lines. ` +
+      `Main action items: ${bullets.slice(0, 3).map((b) => b.replace(/^[-•*\d).]\s*/, '')).join('; ')}.`
+    )
+  }
+
+  const sentences = body
+    .split(/[.!\n]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 20)
+    .slice(0, 2)
+
+  return sentences.length >= 1
+    ? `Summary: ${sentences.join('. ')}.`
+    : `This note covers ${lines.length} points. Main topic: "${topic}".`
+}
+
+function respondNoteRewrite(body: string): string {
+  const lines = body.split('\n').map((l) => l.trim())
+  const cleaned = lines
+    .map((l) => {
+      // Normalise bullet styles to •
+      if (/^[-*]\s+/.test(l)) return l.replace(/^[-*]\s+/, '• ')
+      if (/^\d+[).]\s+/.test(l)) return l.replace(/^\d+[).]\s+/, '• ')
+      return l
+    })
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+
+  return cleaned
+}
+
+function respondNoteKeyPoints(body: string): string {
+  const lines = body.split('\n').map((l) => l.trim()).filter(Boolean)
+  const bullets = lines.filter((l) => /^[-•*]|^\d+[).]/.test(l))
+
+  if (bullets.length >= 2) {
+    const points = bullets
+      .slice(0, 7)
+      .map((b) => `• ${b.replace(/^[-•*\d).]\s*/, '')}`)
+    return `Key points:\n\n${points.join('\n')}`
+  }
+
+  // No existing bullets — lift the most informative-looking lines
+  const points = lines
+    .filter((l) => l.length > 10 && !l.endsWith(':'))
+    .slice(0, 5)
+    .map((l) => `• ${l}`)
+
+  return points.length
+    ? `Key points:\n\n${points.join('\n')}`
+    : `Key points:\n\n• ${lines.slice(0, 3).join('\n• ')}`
 }
 
 // ---------------------------------------------------------------------------
@@ -255,6 +333,12 @@ function buildResponse(prompt: string): string {
     case 'greeting':        return respondGreeting()
     case 'clear-afternoon': return respondClearAfternoon(now)
     case 'add-break':       return respondAddBreak(now)
+    case 'note-summarize':  return respondNoteSummarize(prompt.slice('__note_summarize:'.length))
+    case 'note-rewrite':    return respondNoteRewrite(prompt.slice('__note_rewrite:'.length))
+    case 'note-keypoints':  return respondNoteKeyPoints(prompt.slice('__note_keypoints:'.length))
     default:                return FALLBACK
   }
 }
+
+// Export note prefixes so NoteDetail can build the correct prompt
+export { NOTE_PREFIX_SUMMARIZE, NOTE_PREFIX_REWRITE, NOTE_PREFIX_KEYPOINTS }

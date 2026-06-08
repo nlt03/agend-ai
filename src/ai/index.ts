@@ -16,4 +16,4 @@ async function createAssistant(): Promise<Assistant> {
 export { createAssistant }
 export type { Assistant }
 // Suggestion chips for the home/chat screen — always maps to reliable intents.
-export { SUGGESTIONS } from './MockAssistant'
+export { SUGGESTIONS, NOTE_PREFIX_SUMMARIZE, NOTE_PREFIX_REWRITE, NOTE_PREFIX_KEYPOINTS } from './MockAssistant'
