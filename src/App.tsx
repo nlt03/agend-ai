@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { AssistantProvider, useAssistant } from './contexts/AssistantContext'
 import { AppEventsContext } from './contexts/AppEventsContext'
 import { AppLoader } from './components/AppLoader'
@@ -29,6 +29,7 @@ type Phase = 'splash' | 'onboarding' | 'signup' | 'app'
 
 function Shell() {
   const { assistant, loadingMessage } = useAssistant()
+  const navigate = useNavigate()
   const [phase, setPhase] = useState<Phase>('splash')
   const [splashTimerDone, setSplashTimerDone] = useState(false)
 
@@ -36,19 +37,23 @@ function Shell() {
 
   // Idle reset: when a booth visitor walks away past IDLE_MS, the store is
   // reseeded (inside the hook) and the app returns to the splash screen.
+  // navigate('/') ensures that if they were on a deep route, the next visitor
+  // always lands on Agenda when they complete the flow.
   const handleIdleReset = useCallback(() => {
+    navigate('/', { replace: true })
     setPhase('splash')
     setSplashTimerDone(false)
-  }, [])
+  }, [navigate])
   useIdleReset(handleIdleReset)
 
-  // Log Out: same effect as idle reset but manual. Used from the profile menu.
-  // Also handy as a between-visitor reset at the booth.
+  // Log Out: manual version of the same reset. Also the between-visitor
+  // reset at the booth.
   const handleLogOut = useCallback(() => {
     resetToSeed()
+    navigate('/', { replace: true })
     setPhase('splash')
     setSplashTimerDone(false)
-  }, [resetToSeed])
+  }, [resetToSeed, navigate])
 
   // Advance from splash when BOTH the 1.5s timer fires AND the assistant is ready.
   // For MockAssistant this is immediate; for WebLLM the splash naturally waits longer.
@@ -81,7 +86,16 @@ function Shell() {
   }
 
   if (phase === 'signup') {
-    return <Signup onDone={() => setPhase('app')} />
+    return (
+      <Signup
+        onDone={() => {
+          // Navigate to Agenda before setting phase so the route is
+          // deterministically '/' regardless of what was in the URL.
+          navigate('/', { replace: true })
+          setPhase('app')
+        }}
+      />
+    )
   }
 
   return (
