@@ -108,11 +108,11 @@ export default function NoteDetail() {
   if (!note) return null
 
   return (
-    <div className="fixed inset-0 bg-white flex justify-center">
+    <div className="fixed inset-0 bg-card flex justify-center">
       <div className="w-full max-w-sm flex flex-col h-full">
 
         {/* Header */}
-        <header className="bg-white border-b border-surface px-4 pt-safe pb-3 flex items-center gap-2 shrink-0">
+        <header className="bg-card border-b border-surface px-4 pt-safe pb-3 flex items-center gap-2 shrink-0">
           <button
             onClick={() => navigate('/notes')}
             aria-label="Back to notes"
@@ -150,7 +150,7 @@ export default function NoteDetail() {
         </div>
 
         {/* AI chip bar */}
-        <div className="border-t border-surface bg-white px-4 pt-3 pb-safe shrink-0 space-y-3">
+        <div className="border-t border-surface bg-card px-4 pt-3 pb-safe shrink-0 space-y-3">
 
           {/* AI result panel */}
           {(aiResult || aiStreaming) && (

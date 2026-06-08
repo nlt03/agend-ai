@@ -59,7 +59,7 @@ export function NotificationsPanel({ onClose }: Props) {
 
       {/* Sheet */}
       <motion.div
-        className="absolute inset-x-0 bottom-0 z-50 bg-white rounded-t-modal overflow-hidden"
+        className="absolute inset-x-0 bottom-0 z-50 bg-card rounded-t-modal overflow-hidden"
         initial={{ y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 24, opacity: 0 }}

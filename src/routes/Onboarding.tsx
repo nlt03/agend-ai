@@ -62,7 +62,7 @@ export default function Onboarding({ onSkip, onDone }: OnboardingProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col max-w-sm mx-auto">
+    <div className="fixed inset-0 bg-card flex flex-col max-w-sm mx-auto">
       {/* Navigation row: back arrow (slide 2+) + skip */}
       <div className="flex items-center justify-between px-4 pt-5 pb-2 shrink-0">
         {current > 0 ? (

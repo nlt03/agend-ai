@@ -51,7 +51,7 @@ function Field({ label, id, type, value, error, placeholder, autoComplete, icon,
       <label htmlFor={id} className="text-sm font-medium text-text">
         {label}
       </label>
-      <div className={`flex items-center border rounded-xl px-3 h-12 gap-2 bg-white transition-colors focus-within:ring-2 focus-within:ring-primary-soft ${error ? 'border-error' : 'border-surface'}`}>
+      <div className={`flex items-center border rounded-xl px-3 h-12 gap-2 bg-card transition-colors focus-within:ring-2 focus-within:ring-primary-soft ${error ? 'border-error' : 'border-surface'}`}>
         <span className="text-text-muted shrink-0">{icon}</span>
         <input
           id={id}
@@ -96,7 +96,7 @@ export default function Signup({ onDone }: SignupProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-white overflow-y-auto">
+    <div className="fixed inset-0 bg-card overflow-y-auto">
       <div className="min-h-full flex flex-col items-center justify-start px-6 py-10 max-w-sm mx-auto gap-8 animate-fade-in">
 
         {/* Wordmark */}
@@ -203,7 +203,7 @@ export default function Signup({ onDone }: SignupProps) {
           </button>
           <button
             onClick={onDone}
-            className="w-full h-12 bg-white text-text font-medium text-sm rounded-2xl border border-surface flex items-center justify-center gap-3 hover:bg-surface transition-colors active:scale-[0.98]"
+            className="w-full h-12 bg-card text-text font-medium text-sm rounded-2xl border border-surface flex items-center justify-center gap-3 hover:bg-surface transition-colors active:scale-[0.98]"
           >
             <GoogleLogo className="w-5 h-5" />
             Continue with Google

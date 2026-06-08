@@ -134,7 +134,7 @@ export default function Calendar() {
       <div className="w-full max-w-sm flex flex-col h-full relative">
 
         {/* Header */}
-        <header className="bg-white px-4 pt-safe pb-3 shrink-0">
+        <header className="bg-card px-4 pt-safe pb-3 shrink-0">
           <div className="flex items-center justify-between mt-3">
             <button
               onClick={prevMonth}
@@ -222,7 +222,7 @@ export default function Calendar() {
                 </span>
               </div>
               {selectedEvents.length === 0 ? (
-                <div className="bg-white rounded-2xl py-8 text-center">
+                <div className="bg-card rounded-2xl py-8 text-center">
                   <p className="text-sm text-text-muted">Nothing scheduled</p>
                   <button
                     onClick={() => setShowModal(true)}

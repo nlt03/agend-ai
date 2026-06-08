@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import { useAgendaStore } from '../store/agendaStore'
 import type { EventCategory } from '../store/agendaStore'
+import { useTheme } from '../contexts/ThemeContext'
 import { BottomNav } from '../components/BottomNav'
 
 // ---------------------------------------------------------------------------
@@ -45,7 +46,7 @@ const MOST_ACTIVE_DAYS = [
 
 function StatCard({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
   return (
-    <div className="bg-white rounded-2xl px-4 py-4 flex flex-col gap-1 shadow-card">
+    <div className="bg-card rounded-2xl px-4 py-4 flex flex-col gap-1 shadow-card">
       <span className="text-2xl font-bold text-text">{value}</span>
       <span className="text-xs font-medium text-text">{label}</span>
       {sub && <span className="text-xs text-text-muted">{sub}</span>}
@@ -60,6 +61,20 @@ function StatCard({ label, value, sub }: { label: string; value: number | string
 export default function Insights() {
   const events = useAgendaStore((s) => s.events)
   const notes  = useAgendaStore((s) => s.notes)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
+  // Programmatic dark-mode values for recharts — CSS classes don't reach chart props
+  const chartGrid   = isDark ? 'rgba(255,255,255,0.07)' : '#F1F2F6'
+  const chartTick   = isDark ? '#A8A4B5' : '#5A5766'
+  const chartCursor = isDark ? 'rgba(255,255,255,0.05)' : '#F1F2F6'
+  const tooltipStyle = {
+    borderRadius: 12,
+    border: 'none',
+    fontSize: 12,
+    background: isDark ? '#2D2938' : '#ffffff',
+    color:      isDark ? '#F1F2F6' : '#23202C',
+  }
 
   const today = new Date()
   const todayStr = today.toDateString()
@@ -106,7 +121,7 @@ export default function Insights() {
     <div className="fixed inset-0 bg-surface flex justify-center">
       <div className="w-full max-w-sm flex flex-col h-full">
 
-        <header className="bg-white px-5 pt-safe pb-4 shrink-0">
+        <header className="bg-card px-5 pt-safe pb-4 shrink-0">
           <h1 className="text-h1 font-semibold text-text mt-3">Your Activity</h1>
           <p className="text-sm text-text-muted mt-0.5">Keep up the great work!</p>
         </header>
@@ -122,7 +137,7 @@ export default function Insights() {
           </div>
 
           {/* Category donut */}
-          <div className="bg-white rounded-2xl px-4 py-4">
+          <div className="bg-card rounded-2xl px-4 py-4">
             <h2 className="font-semibold text-text mb-3">Events by Category</h2>
             {donutData.length === 0 ? (
               <p className="text-sm text-text-muted text-center py-4">No events yet</p>
@@ -149,7 +164,7 @@ export default function Insights() {
                         formatter={(value, _name, props) =>
                           [value, CATEGORY_LABELS[(props as { payload?: { cat?: EventCategory } }).payload?.cat as EventCategory] ?? '']
                         }
-                        contentStyle={{ borderRadius: 12, border: 'none', fontSize: 12 }}
+                        contentStyle={tooltipStyle}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -180,27 +195,27 @@ export default function Insights() {
           </div>
 
           {/* Events this week bar chart */}
-          <div className="bg-white rounded-2xl px-4 py-4">
+          <div className="bg-card rounded-2xl px-4 py-4">
             <h2 className="font-semibold text-text mb-3">Events This Week</h2>
             <ResponsiveContainer width="100%" height={140}>
               <BarChart data={weekBarData} barSize={24} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke="#F1F2F6" />
+                <CartesianGrid vertical={false} stroke={chartGrid} />
                 <XAxis
                   dataKey="label"
-                  tick={{ fontSize: 10, fill: '#5A5766' }}
+                  tick={{ fontSize: 10, fill: chartTick }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fontSize: 10, fill: '#5A5766' }}
+                  tick={{ fontSize: 10, fill: chartTick }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip
                   formatter={(v) => [v, 'events']}
-                  contentStyle={{ borderRadius: 12, border: 'none', fontSize: 12 }}
-                  cursor={{ fill: '#F1F2F6' }}
+                  contentStyle={tooltipStyle}
+                  cursor={{ fill: chartCursor }}
                 />
                 <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                   {weekBarData.map((entry, i) => (
@@ -215,7 +230,7 @@ export default function Insights() {
           </div>
 
           {/* Most active days — stable mock */}
-          <div className="bg-white rounded-2xl px-4 py-4 pb-5">
+          <div className="bg-card rounded-2xl px-4 py-4 pb-5">
             <h2 className="font-semibold text-text mb-1">Most Active Days</h2>
             <p className="text-xs text-text-muted mb-4">Based on your typical week</p>
             <div className="space-y-3">

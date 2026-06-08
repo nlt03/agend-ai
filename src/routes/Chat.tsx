@@ -87,14 +87,14 @@ export default function Chat() {
   return (
     // Slide up from bottom on mount
     <motion.div
-      className="fixed inset-0 bg-white flex justify-center"
+      className="fixed inset-0 bg-card flex justify-center"
       initial={{ y: 18, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.22, ease: 'easeOut' }}
     >
       <div className="w-full max-w-sm flex flex-col h-full">
 
-        <header className="bg-white border-b border-surface px-4 pt-safe pb-3 flex items-center gap-3 shrink-0">
+        <header className="bg-card border-b border-surface px-4 pt-safe pb-3 flex items-center gap-3 shrink-0">
           <motion.button
             whileTap={{ scale: 1.15 }}
             onClick={() => navigate(-1)}
@@ -171,7 +171,7 @@ export default function Chat() {
           )}
         </div>
 
-        <div className="bg-white border-t border-surface px-4 py-3 pb-safe shrink-0">
+        <div className="bg-card border-t border-surface px-4 py-3 pb-safe shrink-0">
           <div className="flex items-center gap-2 bg-surface rounded-2xl pl-4 pr-2 py-2">
             <input
               ref={inputRef}

@@ -32,7 +32,7 @@ export function BottomNav({ active }: BottomNavProps) {
      (location.pathname === '/' ? 'agenda' : active))
 
   return (
-    <nav className="bg-white border-t border-surface pb-safe shrink-0">
+    <nav className="bg-card border-t border-surface pb-safe shrink-0">
       <div className="flex items-center justify-around px-2 pt-1">
         {/* Left two tabs */}
         {TABS.slice(0, 2).map((tab) => (

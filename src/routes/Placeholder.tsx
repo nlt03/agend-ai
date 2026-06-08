@@ -9,7 +9,7 @@ function Placeholder({ title, tab }: PlaceholderProps) {
   return (
     <div className="fixed inset-0 bg-surface flex justify-center">
       <div className="w-full max-w-sm flex flex-col h-full">
-        <header className="bg-white px-4 pt-safe pb-4 border-b border-surface shrink-0">
+        <header className="bg-card px-4 pt-safe pb-4 border-b border-surface shrink-0">
           <h1 className="text-xl font-semibold text-text mt-2">{title}</h1>
         </header>
         <div className="flex-1 flex flex-col items-center justify-center gap-2 px-6 text-center">

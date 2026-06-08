@@ -83,7 +83,7 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
       <div className="absolute inset-0 bg-black/40 z-40" onClick={onClose} />
 
       {/* Bottom sheet — spec modal radius 28px */}
-      <div className="absolute inset-x-0 bottom-0 z-50 bg-white rounded-t-modal max-h-[92%] flex flex-col">
+      <div className="absolute inset-x-0 bottom-0 z-50 bg-card rounded-t-modal max-h-[92%] flex flex-col">
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
           <div className="w-10 h-1 rounded-full bg-surface" />

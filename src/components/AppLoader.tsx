@@ -11,7 +11,7 @@ interface AppLoaderProps {
  */
 export function AppLoader({ message }: AppLoaderProps) {
   return (
-    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center gap-4 z-50">
+    <div className="fixed inset-0 bg-card flex flex-col items-center justify-center gap-4 z-50">
       <img
         src={logoGray}
         alt="Agend.AI"

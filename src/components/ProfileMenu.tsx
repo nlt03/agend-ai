@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import {
-  X, ArrowLeft, ChevronRight,
-  UserRound, SlidersHorizontal, Shield, HelpCircle, LogOut, Moon,
+  X, ArrowLeft, ChevronRight, Check,
+  UserRound, SlidersHorizontal, Shield, HelpCircle, LogOut, Moon, Sun,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useAppEvents } from '../contexts/AppEventsContext'
+import { useTheme } from '../contexts/ThemeContext'
+import type { Theme } from '../contexts/ThemeContext'
 
-type SubPage = 'edit-profile' | 'settings' | 'privacy' | 'help'
+type SubPage = 'edit-profile' | 'settings' | 'privacy' | 'help' | 'appearance'
 
 const SUB_LABELS: Record<SubPage, string> = {
   'edit-profile': 'Edit Profile',
   'settings':     'Settings',
   'privacy':      'Privacy',
   'help':         'Help & Feedback',
+  'appearance':   'Appearance',
 }
 
 interface Props {
@@ -21,6 +24,7 @@ interface Props {
 
 export function ProfileMenu({ onClose }: Props) {
   const { logOut } = useAppEvents()
+  const { theme, setTheme } = useTheme()
   const [subPage, setSubPage] = useState<SubPage | null>(null)
 
   function handleLogOut() {
@@ -42,7 +46,7 @@ export function ProfileMenu({ onClose }: Props) {
 
       {/* Sheet */}
       <motion.div
-        className="absolute inset-x-0 bottom-0 z-50 bg-white rounded-t-modal max-h-[85%] flex flex-col overflow-hidden"
+        className="absolute inset-x-0 bottom-0 z-50 bg-card rounded-t-modal max-h-[85%] flex flex-col overflow-hidden"
         initial={{ y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 24, opacity: 0 }}
@@ -66,12 +70,37 @@ export function ProfileMenu({ onClose }: Props) {
               </motion.button>
               <h2 className="text-lg font-semibold text-text">{SUB_LABELS[subPage]}</h2>
             </div>
-            <div className="flex-1 flex flex-col items-center justify-center gap-2 px-6 py-10 text-center">
-              <p className="font-medium text-text">Coming soon</p>
-              <p className="text-sm text-text-muted">
-                This section will be available in the full release.
-              </p>
-            </div>
+
+            {subPage === 'appearance' ? (
+              <div className="flex-1 overflow-y-auto scrollbar-none px-5 pb-safe pb-6">
+                {(
+                  [
+                    { value: 'light', icon: Sun,  label: 'Light' },
+                    { value: 'dark',  icon: Moon, label: 'Dark'  },
+                  ] as { value: Theme; icon: typeof Sun; label: string }[]
+                ).map(({ value, icon: Icon, label }) => (
+                  <motion.button
+                    key={value}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setTheme(value)}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  >
+                    <Icon size={20} strokeWidth={1.5} className="text-text-muted shrink-0" />
+                    <span className="flex-1 text-sm font-medium text-text text-left">{label}</span>
+                    {theme === value && (
+                      <Check size={16} strokeWidth={2.5} className="text-primary shrink-0" />
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center gap-2 px-6 py-10 text-center">
+                <p className="font-medium text-text">Coming soon</p>
+                <p className="text-sm text-text-muted">
+                  This section will be available in the full release.
+                </p>
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -119,16 +148,16 @@ export function ProfileMenu({ onClose }: Props) {
                 </motion.button>
               ))}
 
-              {/* Appearance — disabled; dark mode is parked in FUTURE.md */}
-              <button
-                disabled
-                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl opacity-40 cursor-default"
-                title="Dark mode coming in a future update"
+              {/* Appearance — now fully wired with Light / Dark sub-page */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setSubPage('appearance')}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 <Moon size={20} strokeWidth={1.5} className="text-text-muted shrink-0" />
                 <span className="flex-1 text-sm font-medium text-text text-left">Appearance</span>
-                <span className="text-xs text-text-muted">Coming soon</span>
-              </button>
+                <ChevronRight size={16} strokeWidth={1.5} className="text-text-muted/60" />
+              </motion.button>
 
               <div className="h-px bg-surface my-2" />
 

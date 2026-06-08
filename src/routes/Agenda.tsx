@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bell, UserRound, Mic, Send } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTheme } from '../contexts/ThemeContext'
 import { useAgendaStore, CATEGORY_COLORS } from '../store/agendaStore'
 import type { AgendaEvent, EventCategory } from '../store/agendaStore'
 import { SUGGESTIONS } from '../ai'
@@ -93,6 +94,8 @@ type SheetType = null | 'profile' | 'notifications'
 
 export default function Agenda() {
   const navigate = useNavigate()
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const events = useAgendaStore((s) => s.events)
   const [sheet, setSheet] = useState<SheetType>(null)
   const [heroInput, setHeroInput] = useState('')
@@ -170,7 +173,7 @@ export default function Agenda() {
       <div className="w-full max-w-sm flex flex-col h-full relative">
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <header className="bg-white px-5 pt-safe pb-4 shrink-0">
+        <header className="bg-card px-5 pt-safe pb-4 shrink-0">
           <div className="flex items-start justify-between mt-3">
             <div>
               <p className="text-xs text-text-muted font-medium uppercase tracking-wider">{DATE_LABEL}</p>
@@ -202,13 +205,14 @@ export default function Agenda() {
 
           {/* ── AI Hero card ─────────────────────────────────────────────── */}
           <div className="relative overflow-hidden rounded-3xl">
-            {/* Gradient base */}
+            {/* Gradient base — dark variant removes the light-gray stop */}
             <div
               className="absolute inset-0"
               aria-hidden="true"
               style={{
-                background:
-                  'linear-gradient(135deg, rgba(241,242,246,0.5) 0%, rgba(86,120,255,0.18) 38%, rgba(255,114,159,0.13) 68%, rgba(86,203,249,0.22) 100%)',
+                background: isDark
+                  ? 'linear-gradient(135deg, transparent 0%, rgba(86,120,255,0.22) 38%, rgba(255,114,159,0.18) 68%, rgba(86,203,249,0.22) 100%)'
+                  : 'linear-gradient(135deg, rgba(241,242,246,0.5) 0%, rgba(86,120,255,0.18) 38%, rgba(255,114,159,0.13) 68%, rgba(86,203,249,0.22) 100%)',
               }}
             />
             {/* Bottom-left amber/rose radial blur */}
@@ -245,7 +249,7 @@ export default function Agenda() {
               </div>
 
               {/* Pill input bar — rounded-full ≈ 100px radius on typical height */}
-              <div className="flex items-center bg-white/75 backdrop-blur-sm rounded-full px-4 py-2 gap-2 shadow-sm">
+              <div className="flex items-center bg-card/75 backdrop-blur-sm rounded-full px-4 py-2 gap-2 shadow-sm">
                 <input
                   className="flex-1 text-body bg-transparent text-text placeholder:text-text-muted outline-none min-w-0"
                   placeholder="Ask anything…"
@@ -318,7 +322,7 @@ export default function Agenda() {
             className="overflow-x-auto snap-x snap-mandatory scrollbar-none flex gap-3 -mx-4 px-4 scroll-pl-4 pb-1"
           >
             {/* Card 1 — Today's Agenda: full time-ordered list */}
-            <div className="w-[80vw] max-w-[310px] shrink-0 snap-start bg-white rounded-3xl shadow-card px-4 py-4 flex flex-col">
+            <div className="w-[80vw] max-w-[310px] shrink-0 snap-start bg-card rounded-3xl shadow-card px-4 py-4 flex flex-col">
               <div className="flex items-baseline justify-between mb-3">
                 <h3 className="text-sm font-semibold text-text">Today's Agenda</h3>
                 <span className="text-xs text-text-muted">
@@ -335,7 +339,7 @@ export default function Agenda() {
             </div>
 
             {/* Card 2 — Today at a Glance: count + category distribution + next-up */}
-            <div className="w-[80vw] max-w-[310px] shrink-0 snap-start bg-white rounded-3xl shadow-card px-4 py-4 flex flex-col gap-3">
+            <div className="w-[80vw] max-w-[310px] shrink-0 snap-start bg-card rounded-3xl shadow-card px-4 py-4 flex flex-col gap-3">
               <h3 className="text-sm font-semibold text-text">Today at a Glance</h3>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-4xl font-bold text-text leading-none">{todayEvents.length}</span>
@@ -373,7 +377,7 @@ export default function Agenda() {
             </div>
 
             {/* Card 3 — Coming Up: next 10 days, grouped by day */}
-            <div className="w-[80vw] max-w-[310px] shrink-0 snap-start bg-white rounded-3xl shadow-card px-4 py-4 flex flex-col">
+            <div className="w-[80vw] max-w-[310px] shrink-0 snap-start bg-card rounded-3xl shadow-card px-4 py-4 flex flex-col">
               <h3 className="text-sm font-semibold text-text mb-3">Coming Up</h3>
               {dayGroups.length === 0 ? (
                 <p className="text-sm text-text-muted">Nothing in the next 10 days</p>
