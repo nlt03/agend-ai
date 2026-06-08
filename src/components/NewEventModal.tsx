@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { X, ChevronRight } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import { useAgendaStore } from '../store/agendaStore'
 import type { EventCategory } from '../store/agendaStore'
 
@@ -71,6 +73,7 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
       notes: notes.trim() || undefined,
     })
 
+    toast.success('Event added')
     onClose()
   }
 
@@ -245,12 +248,13 @@ export default function NewEventModal({ initialDate, onClose }: Props) {
 
         {/* Confirm */}
         <div className="px-5 py-4 pb-safe shrink-0 border-t border-surface">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handleConfirm}
-            className="w-full bg-primary text-white font-semibold rounded-btn py-3.5 text-body active:opacity-90 transition-opacity"
+            className="w-full bg-primary text-white font-semibold rounded-btn py-3.5 text-body transition-opacity"
           >
             Add Event
-          </button>
+          </motion.button>
         </div>
       </div>
     </>

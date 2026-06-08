@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import { useAgendaStore } from '../store/agendaStore'
 import { BottomNav } from '../components/BottomNav'
 
@@ -42,6 +44,7 @@ export default function Notes() {
 
   function handleNew() {
     const id = addNote({ title: '', body: '' })
+    toast.success('Note created')
     navigate(`/notes/${id}`)
   }
 
@@ -92,13 +95,14 @@ export default function Notes() {
           </div>
 
           {/* FAB */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleNew}
             aria-label="New note"
-            className="absolute bottom-4 right-4 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/40 transition-transform active:scale-95"
+            className="absolute bottom-4 right-4 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/40"
           >
             <Plus size={24} strokeWidth={2} />
-          </button>
+          </motion.button>
         </div>
 
         <BottomNav active="notes" />

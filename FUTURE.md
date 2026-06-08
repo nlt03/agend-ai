@@ -21,6 +21,7 @@ Items deliberately deferred. Build these in later rounds once the Figma-driven U
 - Account settings / profile page
 
 ## AI assistant
+- Voice input (Web Speech API): the Mic button in the hero card opens Chat as a non-dead fallback; real voice transcription is parked here. Wiring: `SpeechRecognition.start()` on mic tap → transcript → `openChat(transcript)`.
 - Real NLP rescheduling: free-text "move my 3pm to Thursday" parsing (currently only canned intents)
 - Arbitrary add/edit via natural language ("add dentist at 9am Monday for 1 hour")
 - Multi-turn conversation with context memory across messages

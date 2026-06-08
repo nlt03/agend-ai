@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, RotateCcw, Send } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { useAssistant } from '../contexts/AssistantContext'
 import { SUGGESTIONS } from '../ai'
 
 interface Message {
   role: 'user' | 'assistant'
   text: string
-  thinking?: boolean // true while 400–800ms delay is running
+  thinking?: boolean
 }
 
-// Typing indicator — three bouncing dots
 function ThinkingDots() {
   return (
     <span className="flex items-center gap-1 h-5">
@@ -30,8 +30,7 @@ export default function Chat() {
   const location = useLocation()
   const { assistant } = useAssistant()
 
-  const initialPrompt = (location.state as { initialPrompt?: string } | null)
-    ?.initialPrompt
+  const initialPrompt = (location.state as { initialPrompt?: string } | null)?.initialPrompt
 
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -40,12 +39,10 @@ export default function Chat() {
   const inputRef = useRef<HTMLInputElement>(null)
   const didAutoSend = useRef(false)
 
-  // Auto-scroll on new messages
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Auto-send the initial prompt (passed from home chips or AI entry)
   useEffect(() => {
     if (initialPrompt && assistant && !didAutoSend.current) {
       didAutoSend.current = true
@@ -60,7 +57,6 @@ export default function Chat() {
     setInput('')
 
     setMessages((m) => [...m, { role: 'user', text }])
-    // Show thinking indicator immediately
     setMessages((m) => [...m, { role: 'assistant', text: '', thinking: true }])
     setStreaming(true)
 
@@ -77,7 +73,6 @@ export default function Chat() {
     })
 
     setStreaming(false)
-    // Return focus to input after answer lands
     setTimeout(() => inputRef.current?.focus(), 50)
   }
 
@@ -90,32 +85,38 @@ export default function Chat() {
   }
 
   return (
-    <div className="fixed inset-0 bg-white flex justify-center">
+    // Slide up from bottom on mount
+    <motion.div
+      className="fixed inset-0 bg-white flex justify-center"
+      initial={{ y: 18, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
+    >
       <div className="w-full max-w-sm flex flex-col h-full">
 
-        {/* Header */}
         <header className="bg-white border-b border-surface px-4 pt-safe pb-3 flex items-center gap-3 shrink-0">
-          <button
+          <motion.button
+            whileTap={{ scale: 1.15 }}
             onClick={() => navigate(-1)}
             aria-label="Back"
             className="w-9 h-9 rounded-full flex items-center justify-center text-text-muted hover:bg-surface transition-colors"
           >
             <ArrowLeft size={20} strokeWidth={1.5} />
-          </button>
+          </motion.button>
           <div className="flex-1">
             <p className="font-semibold text-text">AI Assistant</p>
             <p className="text-xs text-text-muted">Ask anything about your schedule</p>
           </div>
-          <button
+          <motion.button
+            whileTap={{ scale: 1.15 }}
             onClick={resetChat}
             aria-label="New chat"
             className="w-9 h-9 rounded-full flex items-center justify-center text-text-muted hover:bg-surface transition-colors"
           >
             <RotateCcw size={18} strokeWidth={1.5} />
-          </button>
+          </motion.button>
         </header>
 
-        {/* Messages / empty state */}
         <div className="flex-1 overflow-y-auto scrollbar-none px-4 py-5">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center gap-5 px-2">
@@ -125,22 +126,27 @@ export default function Chat() {
               </div>
               <div className="w-full space-y-2">
                 {SUGGESTIONS.map((s) => (
-                  <button
+                  <motion.button
                     key={s}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => handleSend(s)}
                     disabled={streaming}
                     className="w-full text-left text-sm px-4 py-3 rounded-2xl bg-surface text-text-muted hover:bg-primary/10 hover:text-primary transition-colors"
                   >
                     {s}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
           ) : (
             <div className="space-y-3">
               {messages.map((m, i) => (
-                <div
+                // key={i} is stable for existing messages; new messages get new indices and animate
+                <motion.div
                   key={i}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
                   className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
@@ -151,7 +157,6 @@ export default function Chat() {
                     }`}
                   >
                     {m.thinking ? <ThinkingDots /> : m.text}
-                    {/* Streaming cursor */}
                     {streaming &&
                       !m.thinking &&
                       i === messages.length - 1 &&
@@ -159,14 +164,13 @@ export default function Chat() {
                         <span className="inline-block w-1.5 h-3.5 bg-text-muted ml-0.5 animate-pulse align-text-bottom" />
                       )}
                   </div>
-                </div>
+                </motion.div>
               ))}
               <div ref={endRef} />
             </div>
           )}
         </div>
 
-        {/* Input bar */}
         <div className="bg-white border-t border-surface px-4 py-3 pb-safe shrink-0">
           <div className="flex items-center gap-2 bg-surface rounded-2xl pl-4 pr-2 py-2">
             <input
@@ -178,18 +182,19 @@ export default function Chat() {
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
               disabled={streaming}
             />
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => handleSend()}
               disabled={streaming || !input.trim()}
               aria-label="Send"
               className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center disabled:opacity-40 transition-opacity shrink-0"
             >
               <Send size={15} strokeWidth={2} />
-            </button>
+            </motion.button>
           </div>
         </div>
 
       </div>
-    </div>
+    </motion.div>
   )
 }
