@@ -27,11 +27,13 @@ Items deliberately deferred. Build these in later rounds once the Figma-driven U
 
 ## UI / UX
 - Figma-driven visual design pass (full screens, tokens, responsive polish)
-- Week/month calendar views
-- Event detail / edit modals
+- Calendar week view (parked from 2e — month view ships instead; week is lower booth value, higher complexity)
+- Event detail / edit modals (tap an event card to open)
 - Drag-and-drop rescheduling
 - Mobile-optimised touch targets and gesture handling
 - Dark mode
+- New Event: location field (visual only in 2e — no geocoding or map integration yet)
+- New Event: reminder / notification field (visual only in 2e — Web Push not wired)
 
 ## Calendar data
 - Real calendar integration (Google Calendar, CalDAV, iCal import)
